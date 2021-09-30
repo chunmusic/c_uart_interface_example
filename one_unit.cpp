@@ -63,77 +63,15 @@ int
 top (int argc, char **argv)
 {
 
-	// --------------------------------------------------------------------------
-	//   PARSE THE COMMANDS
-	// --------------------------------------------------------------------------
-
-	// Default input arguments
-#ifdef __APPLE__
-	char *uart_name = (char*)"/dev/tty.usbmodem1";
-#else
-	char *uart_name = (char*)"/dev/ttyUSB0";
-#endif
-	int baudrate = 921600;
-
-	bool use_udp = false;
-	char *udp_ip = (char*)"127.0.0.1";
-	int udp_port = 14540;
 	bool autotakeoff = false;
 
-	// do the parse, will throw an int if it fails
-	parse_commandline(argc, argv, uart_name, baudrate, use_udp, udp_ip, udp_port, autotakeoff);
-
-
-	// --------------------------------------------------------------------------
-	//   PORT and THREAD STARTUP
-	// --------------------------------------------------------------------------
-
-	/*
-	 * Instantiate a generic port object
-	 *
-	 * This object handles the opening and closing of the offboard computer's
-	 * port over which it will communicate to an autopilot.  It has
-	 * methods to read and write a mavlink_message_t object.  To help with read
-	 * and write in the context of pthreading, it gaurds port operations with a
-	 * pthread mutex lock. It can be a serial or an UDP port.
-	 *
-	 */
 	Generic_Port *port;
-	if(use_udp)
-	{
-		port = new UDP_Port(udp_ip, udp_port);
-	}
-	else
-	{
-		port = new Serial_Port(uart_name, baudrate);
-	}
 
+	port = new Serial_Port("/dev/ttyACM8", 921600);
 
-	/*
-	 * Instantiate an autopilot interface object
-	 *
-	 * This starts two threads for read and write over MAVlink. The read thread
-	 * listens for any MAVlink message and pushes it to the current_messages
-	 * attribute.  The write thread at the moment only streams a position target
-	 * in the local NED frame (mavlink_set_position_target_local_ned_t), which
-	 * is changed by using the method update_setpoint().  Sending these messages
-	 * are only half the requirement to get response from the autopilot, a signal
-	 * to enter "offboard_control" mode is sent by using the enable_offboard_control()
-	 * method.  Signal the exit of this mode with disable_offboard_control().  It's
-	 * important that one way or another this program signals offboard mode exit,
-	 * otherwise the vehicle will go into failsafe.
-	 *
-	 */
 	Autopilot_Interface autopilot_interface(port);
 
-	/*
-	 * Setup interrupt signal handler
-	 *
-	 * Responds to early exits signaled with Ctrl-C.  The handler will command
-	 * to exit offboard mode if required, and close threads and the port.
-	 * The handler in this example needs references to the above objects.
-	 *
-	 */
+
 	port_quit         = port;
 	autopilot_interface_quit = &autopilot_interface;
 	signal(SIGINT,quit_handler);
@@ -201,6 +139,10 @@ commands(Autopilot_Interface &api, bool autotakeoff)
 		Mavlink_Messages messages = api.current_messages;
 
 		mavlink_uav1_thrust_t uav1_thrust = messages.uav1_thrust;
+		mavlink_uav2_thrust_t uav2_thrust = messages.uav2_thrust;
+		mavlink_uav3_thrust_t uav3_thrust = messages.uav3_thrust;
+		mavlink_uav4_thrust_t uav4_thrust = messages.uav4_thrust;
+
 		mavlink_uav_command_t uav_command = messages.uav_command;
 
 		printf("nav_state: %d \n", uav_command.nav_state);
@@ -209,10 +151,25 @@ commands(Autopilot_Interface &api, bool autotakeoff)
 		printf("armed: %d \n", uav_command.armed);
 		printf("prearmed: %d \n", uav_command.prearmed);
 
-		printf("acc[0]: %f \n", uav1_thrust.actuator_control[0]);
-		printf("acc[1]: %f \n", uav1_thrust.actuator_control[1]);
-		printf("acc[2]: %f \n", uav1_thrust.actuator_control[2]);
-		printf("acc[3]: %f \n", uav1_thrust.actuator_control[3]);
+		printf("1_acc[0]: %f \n", uav1_thrust.actuator_control[0]);
+		printf("1_acc[1]: %f \n", uav1_thrust.actuator_control[1]);
+		printf("1_acc[2]: %f \n", uav1_thrust.actuator_control[2]);
+		printf("1_acc[3]: %f \n", uav1_thrust.actuator_control[3]);
+		
+		printf("2_acc[0]: %f \n", uav2_thrust.actuator_control[0]);
+		printf("2_acc[1]: %f \n", uav2_thrust.actuator_control[1]);
+		printf("2_acc[2]: %f \n", uav2_thrust.actuator_control[2]);
+		printf("2_acc[3]: %f \n", uav2_thrust.actuator_control[3]);
+		
+		printf("3_acc[0]: %f \n", uav3_thrust.actuator_control[0]);
+		printf("3_acc[1]: %f \n", uav3_thrust.actuator_control[1]);
+		printf("3_acc[2]: %f \n", uav3_thrust.actuator_control[2]);
+		printf("3_acc[3]: %f \n", uav3_thrust.actuator_control[3]);
+		
+		printf("4_acc[0]: %f \n", uav4_thrust.actuator_control[0]);
+		printf("4_acc[1]: %f \n", uav4_thrust.actuator_control[1]);
+		printf("4_acc[2]: %f \n", uav4_thrust.actuator_control[2]);
+		printf("4_acc[3]: %f \n", uav4_thrust.actuator_control[3]);
 
         printf("\n");
     }

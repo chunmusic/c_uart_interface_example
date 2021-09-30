@@ -156,6 +156,9 @@ struct Time_Stamps
 	uint64_t highres_imu;
 	uint64_t attitude;
 	uint64_t uav1_thrust;
+	uint64_t uav2_thrust;
+	uint64_t uav3_thrust;
+	uint64_t uav4_thrust;
 	uint64_t uav_command;
 
 	void
@@ -172,6 +175,10 @@ struct Time_Stamps
 		highres_imu = 0;
 		attitude = 0;
 		uav1_thrust = 0;
+		uav2_thrust = 0;
+		uav3_thrust = 0;
+		uav4_thrust = 0;
+
 		uav_command = 0;
 	}
 
@@ -218,6 +225,9 @@ struct Mavlink_Messages {
 	// System Parameters?
 
 	mavlink_uav1_thrust_t uav1_thrust;
+	mavlink_uav2_thrust_t uav2_thrust;
+	mavlink_uav3_thrust_t uav3_thrust;
+	mavlink_uav4_thrust_t uav4_thrust;
 
 	mavlink_uav_command_t uav_command;
 
