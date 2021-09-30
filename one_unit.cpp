@@ -133,7 +133,8 @@ top (int argc, char **argv)
 // ------------------------------------------------------------------------------
 
 void
-commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api)
+commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, 
+			Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api)
 {
 
 	printf("READ SOME MESSAGES \n");

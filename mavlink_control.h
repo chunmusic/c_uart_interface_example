@@ -80,7 +80,8 @@ using namespace std;
 int main(int argc, char **argv);
 int top(int argc, char **argv);
 
-void commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api);
+void commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, 
+				Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api);
 
 void parse_commandline(int argc, char **argv, char *&uart_name, int &baudrate,
 		bool &use_udp, char *&udp_ip, int &udp_port, bool &autotakeoff);
