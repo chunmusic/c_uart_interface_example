@@ -63,54 +63,66 @@ int
 top (int argc, char **argv)
 {
 
-	bool autotakeoff = false;
+	Generic_Port *port_uav1, *port_uav3, *port_uav4, *port_uav5, *port_uav6;
 
-	Generic_Port *port;
+	port_uav1 = new Serial_Port("/dev/ttyACM0", 921600);
+	port_uav3 = new Serial_Port("/dev/ttyACM1", 921600);
+	port_uav4 = new Serial_Port("/dev/ttyACM2", 921600);
+	port_uav5 = new Serial_Port("/dev/ttyACM3", 921600);
+	port_uav6 = new Serial_Port("/dev/ttyACM3", 921600);
 
-	port = new Serial_Port("/dev/ttyACM8", 921600);
+	Autopilot_Interface autopilot_interface_uav1(port_uav1);
+	Autopilot_Interface autopilot_interface_uav3(port_uav3);
+	Autopilot_Interface autopilot_interface_uav4(port_uav4);
+	Autopilot_Interface autopilot_interface_uav5(port_uav5);	
+	Autopilot_Interface autopilot_interface_uav6(port_uav6);
 
-	Autopilot_Interface autopilot_interface(port);
+	port_quit_uav1         = port_uav1;
+	port_quit_uav3         = port_uav3;
+	port_quit_uav4         = port_uav4;
+	port_quit_uav5         = port_uav5;
+	port_quit_uav6         = port_uav6;
 
+	autopilot_interface_quit_uav1 = &autopilot_interface_uav1;
+	autopilot_interface_quit_uav3 = &autopilot_interface_uav3;
+	autopilot_interface_quit_uav4 = &autopilot_interface_uav4;
+	autopilot_interface_quit_uav5 = &autopilot_interface_uav5;
+	autopilot_interface_quit_uav6 = &autopilot_interface_uav6;
 
-	port_quit         = port;
-	autopilot_interface_quit = &autopilot_interface;
 	signal(SIGINT,quit_handler);
 
-	/*
-	 * Start the port and autopilot_interface
-	 * This is where the port is opened, and read and write threads are started.
-	 */
-	port->start();
-	autopilot_interface.start();
+	port_uav1->start();
+	port_uav3->start();
+	port_uav4->start();
+	port_uav5->start();
+	port_uav6->start();
 
+	autopilot_interface_uav1.start();
+	autopilot_interface_uav3.start();
+	autopilot_interface_uav4.start();
+	autopilot_interface_uav5.start();
+	autopilot_interface_uav6.start();
 
-	// --------------------------------------------------------------------------
-	//   RUN COMMANDS
-	// --------------------------------------------------------------------------
+	commands(autopilot_interface_uav1, autopilot_interface_uav3, autopilot_interface_uav4, autopilot_interface_uav5, autopilot_interface_uav6);
 
-	/*
-	 * Now we can implement the algorithm we want on top of the autopilot interface
-	 */
-	commands(autopilot_interface, autotakeoff);
+	autopilot_interface_uav1.stop();
+	autopilot_interface_uav3.stop();
+	autopilot_interface_uav4.stop();
+	autopilot_interface_uav5.stop();
+	autopilot_interface_uav6.stop();
 
+	port_uav1->stop();
+	port_uav3->stop();
+	port_uav4->stop();
+	port_uav5->stop();
+	port_uav6->stop();
 
-	// --------------------------------------------------------------------------
-	//   THREAD and PORT SHUTDOWN
-	// --------------------------------------------------------------------------
+	delete port_uav1;
+	delete port_uav3;
+	delete port_uav4;
+	delete port_uav5;
+	delete port_uav6;
 
-	/*
-	 * Now that we are done we can stop the threads and close the port
-	 */
-	autopilot_interface.stop();
-	port->stop();
-
-	delete port;
-
-	// --------------------------------------------------------------------------
-	//   DONE
-	// --------------------------------------------------------------------------
-
-	// woot!
 	return 0;
 
 }
@@ -121,29 +133,22 @@ top (int argc, char **argv)
 // ------------------------------------------------------------------------------
 
 void
-commands(Autopilot_Interface &api, bool autotakeoff)
+commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api)
 {
 
-	// --------------------------------------------------------------------------
-	//   GET A MESSAGE
-	// --------------------------------------------------------------------------
 	printf("READ SOME MESSAGES \n");
-
-	// copy current messages
-	// Mavlink_Messages messages = api.current_messages;
 
     while (true)
     {
-        // local position in ned frame
 
-		Mavlink_Messages messages = api.current_messages;
+		Mavlink_Messages uav1_msg = uav1_api.current_messages;
 
-		mavlink_uav1_thrust_t uav1_thrust = messages.uav1_thrust;
-		mavlink_uav2_thrust_t uav2_thrust = messages.uav2_thrust;
-		mavlink_uav3_thrust_t uav3_thrust = messages.uav3_thrust;
-		mavlink_uav4_thrust_t uav4_thrust = messages.uav4_thrust;
+		mavlink_uav1_thrust_t uav1_thrust = uav1_msg.uav1_thrust;
+		mavlink_uav2_thrust_t uav2_thrust = uav1_msg.uav2_thrust;
+		mavlink_uav3_thrust_t uav3_thrust = uav1_msg.uav3_thrust;
+		mavlink_uav4_thrust_t uav4_thrust = uav1_msg.uav4_thrust;
 
-		mavlink_uav_command_t uav_command = messages.uav_command;
+		mavlink_uav_command_t uav_command = uav1_msg.uav_command;
 
 		printf("nav_state: %d \n", uav_command.nav_state);
 		printf("arming_state: %d \n", uav_command.arming_state);
@@ -172,100 +177,14 @@ commands(Autopilot_Interface &api, bool autotakeoff)
 		printf("4_acc[3]: %f \n", uav4_thrust.actuator_control[3]);
 
         printf("\n");
+
+		// TODO create send message
     }
 
-	// --------------------------------------------------------------------------
-	//   END OF COMMANDS
-	// --------------------------------------------------------------------------
-
 	return;
 
 }
 
-
-// ------------------------------------------------------------------------------
-//   Parse Command Line
-// ------------------------------------------------------------------------------
-// throws EXIT_FAILURE if could not open the port
-void
-parse_commandline(int argc, char **argv, char *&uart_name, int &baudrate,
-		bool &use_udp, char *&udp_ip, int &udp_port, bool &autotakeoff)
-{
-
-	// string for command line usage
-	const char *commandline_usage = "usage: mavlink_control [-d <devicename> -b <baudrate>] [-u <udp_ip> -p <udp_port>] [-a ]";
-
-	// Read input arguments
-	for (int i = 1; i < argc; i++) { // argv[0] is "mavlink"
-
-		// Help
-		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-			printf("%s\n",commandline_usage);
-			throw EXIT_FAILURE;
-		}
-
-		// UART device ID
-		if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--device") == 0) {
-			if (argc > i + 1) {
-				i++;
-				uart_name = argv[i];
-			} else {
-				printf("%s\n",commandline_usage);
-				throw EXIT_FAILURE;
-			}
-		}
-
-		// Baud rate
-		if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--baud") == 0) {
-			if (argc > i + 1) {
-				i++;
-				baudrate = atoi(argv[i]);
-			} else {
-				printf("%s\n",commandline_usage);
-				throw EXIT_FAILURE;
-			}
-		}
-
-		// UDP ip
-		if (strcmp(argv[i], "-u") == 0 || strcmp(argv[i], "--udp_ip") == 0) {
-			if (argc > i + 1) {
-				i++;
-				udp_ip = argv[i];
-				use_udp = true;
-			} else {
-				printf("%s\n",commandline_usage);
-				throw EXIT_FAILURE;
-			}
-		}
-
-		// UDP port
-		if (strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--port") == 0) {
-			if (argc > i + 1) {
-				i++;
-				udp_port = atoi(argv[i]);
-			} else {
-				printf("%s\n",commandline_usage);
-				throw EXIT_FAILURE;
-			}
-		}
-
-		// Autotakeoff
-		if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--autotakeoff") == 0) {
-			autotakeoff = true;
-		}
-
-	}
-	// end: for each input argument
-
-	// Done!
-	return;
-}
-
-
-// ------------------------------------------------------------------------------
-//   Quit Signal Handler
-// ------------------------------------------------------------------------------
-// this function is called when you press Ctrl-C
 void
 quit_handler( int sig )
 {
@@ -273,19 +192,25 @@ quit_handler( int sig )
 	printf("TERMINATING AT USER REQUEST\n");
 	printf("\n");
 
-	// autopilot interface
 	try {
-		autopilot_interface_quit->handle_quit(sig);
+		autopilot_interface_quit_uav1->handle_quit(sig);
+		autopilot_interface_quit_uav3->handle_quit(sig);
+		autopilot_interface_quit_uav4->handle_quit(sig);
+		autopilot_interface_quit_uav5->handle_quit(sig);
+		autopilot_interface_quit_uav6->handle_quit(sig);
 	}
 	catch (int error){}
 
 	// port
 	try {
-		port_quit->stop();
+		port_quit_uav1->stop();
+		port_quit_uav3->stop();
+		port_quit_uav4->stop();
+		port_quit_uav5->stop();
+		port_quit_uav6->stop();
 	}
 	catch (int error){}
 
-	// end program here
 	exit(0);
 
 }

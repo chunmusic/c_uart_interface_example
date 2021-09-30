@@ -80,12 +80,22 @@ using namespace std;
 int main(int argc, char **argv);
 int top(int argc, char **argv);
 
-void commands(Autopilot_Interface &autopilot_interface, bool autotakeoff);
+void commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api, Autopilot_Interface &uav4_api, Autopilot_Interface &uav5_api, Autopilot_Interface &uav6_api);
+
 void parse_commandline(int argc, char **argv, char *&uart_name, int &baudrate,
 		bool &use_udp, char *&udp_ip, int &udp_port, bool &autotakeoff);
 
-// quit handler
-Autopilot_Interface *autopilot_interface_quit;
-Generic_Port *port_quit;
+Autopilot_Interface *autopilot_interface_quit_uav1;
+Autopilot_Interface *autopilot_interface_quit_uav3;
+Autopilot_Interface *autopilot_interface_quit_uav4;
+Autopilot_Interface *autopilot_interface_quit_uav5;
+Autopilot_Interface *autopilot_interface_quit_uav6;
+
+Generic_Port *port_quit_uav1;
+Generic_Port *port_quit_uav3;
+Generic_Port *port_quit_uav4;
+Generic_Port *port_quit_uav5;
+Generic_Port *port_quit_uav6;
+
 void quit_handler( int sig );
 
