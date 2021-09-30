@@ -337,7 +337,7 @@ read_messages()
 
 				case MAVLINK_MSG_ID_HIGHRES_IMU:
 				{
-					//printf("MAVLINK_MSG_ID_HIGHRES_IMU\n");
+					printf("MAVLINK_MSG_ID_HIGHRES_IMU\n");
 					mavlink_msg_highres_imu_decode(&message, &(current_messages.highres_imu));
 					current_messages.time_stamps.highres_imu = get_time_usec();
 					this_timestamps.highres_imu = current_messages.time_stamps.highres_imu;
@@ -350,6 +350,24 @@ read_messages()
 					mavlink_msg_attitude_decode(&message, &(current_messages.attitude));
 					current_messages.time_stamps.attitude = get_time_usec();
 					this_timestamps.attitude = current_messages.time_stamps.attitude;
+					break;
+				}
+
+				case MAVLINK_MSG_ID_UAV_COMMAND:
+				{
+					printf("MAVLINK_MSG_ID_UAV_COMMAND\n");
+					mavlink_msg_uav_command_decode(&message, &(current_messages.uav_command));
+					current_messages.time_stamps.uav_command = get_time_usec();
+					this_timestamps.uav_command = current_messages.time_stamps.uav_command;
+					break;
+				}
+
+				case MAVLINK_MSG_ID_UAV1_THRUST:
+				{
+					printf("MAVLINK_MSG_ID_UAV1_THRUST\n");
+					mavlink_msg_uav1_thrust_decode(&message, &(current_messages.uav1_thrust));
+					current_messages.time_stamps.uav1_thrust = get_time_usec();
+					this_timestamps.uav1_thrust = current_messages.time_stamps.uav1_thrust;
 					break;
 				}
 

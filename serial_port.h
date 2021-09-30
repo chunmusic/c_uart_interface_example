@@ -62,7 +62,7 @@
 #include <pthread.h> // This uses POSIX Threads
 #include <signal.h>
 
-#include <common/mavlink.h>
+#include <multi_uav/mavlink.h>
 
 #include "generic_port.h"
 

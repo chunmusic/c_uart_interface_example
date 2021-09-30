@@ -64,7 +64,7 @@
 #include <unistd.h>  // UNIX standard function definitions
 #include <mutex>
 
-#include <common/mavlink.h>
+#include <multi_uav/mavlink.h>
 
 // ------------------------------------------------------------------------------
 //   Defines
@@ -155,6 +155,8 @@ struct Time_Stamps
 	uint64_t position_target_global_int;
 	uint64_t highres_imu;
 	uint64_t attitude;
+	uint64_t uav1_thrust;
+	uint64_t uav_command;
 
 	void
 	reset_timestamps()
@@ -169,6 +171,8 @@ struct Time_Stamps
 		position_target_global_int = 0;
 		highres_imu = 0;
 		attitude = 0;
+		uav1_thrust = 0;
+		uav_command = 0;
 	}
 
 };
@@ -213,6 +217,9 @@ struct Mavlink_Messages {
 
 	// System Parameters?
 
+	mavlink_uav1_thrust_t uav1_thrust;
+
+	mavlink_uav_command_t uav_command;
 
 	// Time Stamps
 	Time_Stamps time_stamps;
