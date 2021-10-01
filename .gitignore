@@ -12,6 +12,7 @@ build/
 *.o
 *.d
 mavlink_control
+one_unit
 
 # mac
 .DS_Store
