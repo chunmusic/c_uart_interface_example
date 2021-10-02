@@ -632,6 +632,38 @@ toggle_offboard_control( bool flag )
 	return len;
 }
 
+int 
+Autopilot_Interface::
+send_uav_command(int nav_state, int arming_state, int armed, int prearmed, int ready_to_arm, 
+				 int lockdown, int manual_lockdown, int force_failsafe, int in_esc_calibration_mode, int soft_stop)
+{
+
+	// Prepare command for uav_command custom messages
+	mavlink_uav_command_t com = { 0 };
+	com.timestamp	 			= get_time_usec();
+	com.nav_state     			= nav_state;
+	com.arming_state			= arming_state;
+	com.armed					= armed;
+	com.prearmed				= prearmed;
+	com.ready_to_arm			= ready_to_arm;
+	com.lockdown				= lockdown;
+	com.manual_lockdown			= manual_lockdown;
+	com.force_failsafe			= force_failsafe;
+	com.in_esc_calibration_mode	= in_esc_calibration_mode;
+	com.soft_stop				= soft_stop;
+
+	// Encode
+	mavlink_message_t message;
+	mavlink_msg_uav_command_encode(system_id, companion_id, &message, &com);
+
+	// Send the message
+	int len = port->write_message(message);
+	printf("nav_state: %d ", system_id);
+	// Done!
+	return len;
+
+}
+
 
 // ------------------------------------------------------------------------------
 //   STARTUP
@@ -715,10 +747,14 @@ start()
 	// --------------------------------------------------------------------------
 
 	// Wait for initial position ned
+	printf("waiting loop");
+
 	while ( not ( current_messages.time_stamps.local_position_ned &&
 				  current_messages.time_stamps.attitude            )  )
 	{
+		printf("inside_loop");
 		if ( time_to_exit )
+			printf("inside_if");
 			return;
 		usleep(500000);
 	}

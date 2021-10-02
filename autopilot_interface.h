@@ -289,6 +289,8 @@ public:
 	void enable_offboard_control();
 	void disable_offboard_control();
 
+	int send_uav_command(int nav_state, int arming_state, int armed, int prearmed, int ready_to_arm, int lockdown, int manual_lockdown, int force_failsafe, int in_esc_calibration_mode, int soft_stop);
+
 	void start();
 	void stop();
 
