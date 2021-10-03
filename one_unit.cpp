@@ -53,7 +53,7 @@
 //   Includes
 // ------------------------------------------------------------------------------
 
-#include "mavlink_control.h"
+#include "one_unit.h"
 
 
 // ------------------------------------------------------------------------------
@@ -127,6 +127,30 @@ top (int argc, char **argv)
 
 }
 
+void print_status(mavlink_uav_command_t uav_command, mavlink_uav1_thrust_t uav1_thrust, mavlink_uav2_thrust_t uav2_thrust,
+				  mavlink_uav3_thrust_t uav3_thrust, mavlink_uav4_thrust_t uav4_thrust)
+{
+
+	printf("nav_state: %d \n", uav_command.nav_state);
+	printf("arming_state: %d \n", uav_command.arming_state);
+
+	printf("armed: %d \n", uav_command.armed);
+	printf("prearmed: %d \n", uav_command.prearmed);
+
+	for (int i; i<4; i++){
+		printf("1_acc[0]: %f \n", uav1_thrust.actuator_control[0]);
+	}
+	for (int i; i<4; i++){
+		printf("2_acc[0]: %f \n", uav2_thrust.actuator_control[1]);
+	}
+	for (int i; i<4; i++){
+		printf("3_acc[0]: %f \n", uav3_thrust.actuator_control[2]);
+	}
+	for (int i; i<4; i++){
+		printf("4_acc[0]: %f \n", uav4_thrust.actuator_control[3]);
+	}
+
+}
 
 // ------------------------------------------------------------------------------
 //   COMMANDS
@@ -144,42 +168,20 @@ commands(Autopilot_Interface &uav1_api, Autopilot_Interface &uav3_api,
 
 		Mavlink_Messages uav1_msg = uav1_api.current_messages;
 
+		mavlink_uav_command_t uav_command = uav1_msg.uav_command;
+
 		mavlink_uav1_thrust_t uav1_thrust = uav1_msg.uav1_thrust;
 		mavlink_uav2_thrust_t uav2_thrust = uav1_msg.uav2_thrust;
 		mavlink_uav3_thrust_t uav3_thrust = uav1_msg.uav3_thrust;
 		mavlink_uav4_thrust_t uav4_thrust = uav1_msg.uav4_thrust;
 
-		mavlink_uav_command_t uav_command = uav1_msg.uav_command;
 
-		printf("nav_state: %d \n", uav_command.nav_state);
-		printf("arming_state: %d \n", uav_command.arming_state);
-
-		printf("armed: %d \n", uav_command.armed);
-		printf("prearmed: %d \n", uav_command.prearmed);
-
-		printf("1_acc[0]: %f \n", uav1_thrust.actuator_control[0]);
-		printf("1_acc[1]: %f \n", uav1_thrust.actuator_control[1]);
-		printf("1_acc[2]: %f \n", uav1_thrust.actuator_control[2]);
-		printf("1_acc[3]: %f \n", uav1_thrust.actuator_control[3]);
-		
-		printf("2_acc[0]: %f \n", uav2_thrust.actuator_control[0]);
-		printf("2_acc[1]: %f \n", uav2_thrust.actuator_control[1]);
-		printf("2_acc[2]: %f \n", uav2_thrust.actuator_control[2]);
-		printf("2_acc[3]: %f \n", uav2_thrust.actuator_control[3]);
-		
-		printf("3_acc[0]: %f \n", uav3_thrust.actuator_control[0]);
-		printf("3_acc[1]: %f \n", uav3_thrust.actuator_control[1]);
-		printf("3_acc[2]: %f \n", uav3_thrust.actuator_control[2]);
-		printf("3_acc[3]: %f \n", uav3_thrust.actuator_control[3]);
-		
-		printf("4_acc[0]: %f \n", uav4_thrust.actuator_control[0]);
-		printf("4_acc[1]: %f \n", uav4_thrust.actuator_control[1]);
-		printf("4_acc[2]: %f \n", uav4_thrust.actuator_control[2]);
-		printf("4_acc[3]: %f \n", uav4_thrust.actuator_control[3]);
+		print_status(uav_command,uav1_thrust,uav2_thrust,uav3_thrust,uav4_thrust);
 
         printf("\n");
 
 		// TODO create send message
+
     }
 
 	return;
