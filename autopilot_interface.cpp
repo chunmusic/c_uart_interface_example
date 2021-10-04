@@ -632,6 +632,9 @@ toggle_offboard_control( bool flag )
 	return len;
 }
 
+// ------------------------------------------------------------------------------
+//   Send UAV_COMMAND MAVLink message to children units
+// ------------------------------------------------------------------------------
 int 
 Autopilot_Interface::
 send_uav_command(int nav_state, int arming_state, int armed, int prearmed, int ready_to_arm, 
@@ -658,11 +661,23 @@ send_uav_command(int nav_state, int arming_state, int armed, int prearmed, int r
 
 	// Send the message
 	int len = port->write_message(message);
-	printf("nav_state: %d ", system_id);
+
 	// Done!
 	return len;
-
 }
+
+// ------------------------------------------------------------------------------
+//   Send UAV_THRUST MAVLink message to children units
+// ------------------------------------------------------------------------------
+// void
+// Autopilot_Interface::
+// send_actuator_control()
+// {
+// 	mavlink_uav1_thrust_t com = { 0 };
+// 	com.timestamp	= get_time_usec();
+// 	com.actuator_control[0]
+
+// }
 
 
 // ------------------------------------------------------------------------------
@@ -745,16 +760,13 @@ start()
 	// --------------------------------------------------------------------------
 	//   GET INITIAL POSITION
 	// --------------------------------------------------------------------------
+	printf("check");
 
 	// Wait for initial position ned
-	printf("waiting loop");
-
 	while ( not ( current_messages.time_stamps.local_position_ned &&
 				  current_messages.time_stamps.attitude            )  )
 	{
-		printf("inside_loop");
 		if ( time_to_exit )
-			printf("inside_if");
 			return;
 		usleep(500000);
 	}
