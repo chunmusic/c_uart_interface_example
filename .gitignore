@@ -15,6 +15,8 @@ mavlink_control
 one_unit
 send_command
 
+makefile
+
 # mac
 .DS_Store
 
