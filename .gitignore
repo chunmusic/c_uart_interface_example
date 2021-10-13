@@ -13,6 +13,7 @@ build/
 *.d
 mavlink_control
 one_unit
+send_command
 
 # mac
 .DS_Store
@@ -20,4 +21,3 @@ one_unit
 
 /build/
 /Debug/
-
